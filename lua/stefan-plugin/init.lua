@@ -7,10 +7,9 @@ local modpath = (...)
 --    return str;
 -- end
 
-local exe = " <cmd> split | ter <CR>"
+local open_ter_win = " <cmd> split | ter <CR><cmd>resize -5<CR><C-W>r"
 
-vim.api.nvim_set_keymap("n", "<leader>ter",exe, {})
-
+vim.api.nvim_set_keymap("n", "<leader>ter",open_ter_win, { })
 
 local print_file_name = require(modpath .. '.module.init')
 
