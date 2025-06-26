@@ -10,6 +10,11 @@ local modpath = (...)
 local open_ter_win = "<cmd>10split | ter <CR><C-W>r"
 
 vim.api.nvim_set_keymap("n", "<leader>ter",open_ter_win, {})
+vim.api.nvim_set_keymap("n", "<leader>foo","", {
+    callback = function ()
+        print(vim.fn.expand("%:p"))
+    end
+})
 local print_file_name = require(modpath .. '.module.init')
 
 return {
