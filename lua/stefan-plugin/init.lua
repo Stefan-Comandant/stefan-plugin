@@ -30,5 +30,6 @@ local print_file_name = require(modpath .. '.module.print_file_name')
 
 return {
     do_foo = print_file_name,
-    build = require(modpath .. ".module.project_build")
+    build = require(modpath .. ".module.project_build"),
+    read = require(modpath .. ".module.visual_select_helper"),
 }
