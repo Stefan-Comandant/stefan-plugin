@@ -40,7 +40,6 @@ local function create_win_and_buf(buttons)
     return new_win_id, new_buf_id
 end
 
-
 return function ()
     local cur_buf_id = vim.api.nvim_get_current_buf()
 
@@ -55,6 +54,26 @@ return function ()
             text = "Build stuff",
             callback = function ()
                 print("building is in the process...")
+            end
+        },
+        {
+            text = "Build Project",
+            callback = function ()
+                local cwd = vim.fn.getcwd()
+                print(cwd)
+
+                vim.system({"make", "-C", cwd, "build"}, {}, function (out)
+                -- vim.system({"kitty"}, { detach = false }, function (out)
+                    -- print("Exit code: " .. out.code)
+                    if out.code == 0 then
+                        print("Build was completed successfully!")
+                        return;
+                    end
+
+
+                    print("An error occured during the project build. Code: " .. out.code .. '\n')
+                    print(out.stderr)
+                end)
             end
         },
     }
@@ -73,6 +92,7 @@ return function ()
                 buffer = new_buf_id,
                 once = true,
                 callback = function ()
+                    vim.api.nvim_buf_del_keymap(cur_buf_id, 'n', 'Z')
                     kill_window(new_win_id, new_buf_id)
                 end,
             })
