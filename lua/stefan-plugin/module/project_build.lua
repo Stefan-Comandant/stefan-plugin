@@ -12,8 +12,24 @@ return function ()
     local cur_buf_id = vim.api.nvim_get_current_buf()
     local new_buf_id = vim.api.nvim_create_buf(false, true)
 
+
+    local buttons = {
+        {
+            text = "Print message",
+            callback = function ()
+                print("This is the first button")
+            end
+        }
+    }
+
+    local popup_text = {}
+
+    for _, button in pairs(buttons) do
+        table.insert(popup_text, button.text)
+    end
+
     -- vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Black", "Guys"})
-    vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Print", "Button 2"})
+    vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, popup_text)
     vim.api.nvim_set_option_value("bufhidden", "delete", { buf = new_buf_id })
     vim.api.nvim_set_option_value("modifiable", false, { buf = new_buf_id });
 
@@ -55,13 +71,8 @@ return function ()
                 end
             })
 
-            local buttons = {
-                { callback = function ()
-                    print("This is the first button")
-                end}
-            }
 
-            vim.api.nvim_buf_set_keymap(new_buf_id, 'n', ' ', '', {
+            vim.api.nvim_buf_set_keymap(new_buf_id, 'n', '<CR>', '', {
                 callback = function ()
                     print("Spacebar was pressed")
                     local cursor_pos = vim.api.nvim_win_get_cursor(new_win_id)
@@ -78,10 +89,6 @@ return function ()
         end
     })
 
-
-    -- nvim.api.nvim_create
-
-    -- vim.api.nvim_set_hl(0, 'Visual', {})
     -- TODO: find out about highlights
     -- TODO: find out about how to listen to char input without keymaps
 
