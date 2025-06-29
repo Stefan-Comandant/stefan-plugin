@@ -7,20 +7,10 @@ local function kill_window(win_id, buf_id)
     end
 end
 
-
-return function ()
-    local cur_buf_id = vim.api.nvim_get_current_buf()
+-- @param `buttons` -
+-- @return - the IDs of the newly created window and buffer
+local function create_win_and_buf(buttons)
     local new_buf_id = vim.api.nvim_create_buf(false, true)
-
-
-    local buttons = {
-        {
-            text = "Print message",
-            callback = function ()
-                print("This is the first button")
-            end
-        }
-    }
 
     local popup_text = {}
 
@@ -28,26 +18,48 @@ return function ()
         table.insert(popup_text, button.text)
     end
 
-    -- vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Black", "Guys"})
     vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, popup_text)
     vim.api.nvim_set_option_value("bufhidden", "delete", { buf = new_buf_id })
     vim.api.nvim_set_option_value("modifiable", false, { buf = new_buf_id });
 
     local new_win_id = vim.api.nvim_open_win(new_buf_id, false, {
         width = 25,
-        height = 15,
+        height = # (buttons), -- set height equal to the length of `buttons`
         relative = 'cursor',
         row = 0,
         col = 0,
         style = "minimal",
         focusable = true,
         mouse = true,
-        border = "solid"
     })
 
     if new_win_id == 0 then
         print("There was an error when creating the floating window")
     end
+
+    return new_win_id, new_buf_id
+end
+
+
+return function ()
+    local cur_buf_id = vim.api.nvim_get_current_buf()
+
+    local buttons = {
+        {
+            text = "Print message",
+            callback = function ()
+                print("This is the first button")
+            end
+        },
+        {
+            text = "Build stuff",
+            callback = function ()
+                print("building is in the process...")
+            end
+        },
+    }
+
+    local new_win_id, new_buf_id = create_win_and_buf(buttons)
 
     vim.api.nvim_buf_set_keymap(cur_buf_id, 'n', 'Z', "", {
         callback = function ()
@@ -59,22 +71,21 @@ return function ()
 
             vim.api.nvim_create_autocmd({"BufLeave"}, {
                 buffer = new_buf_id,
+                once = true,
                 callback = function ()
                     kill_window(new_win_id, new_buf_id)
                 end,
-                once = true,
             })
 
             vim.api.nvim_buf_set_keymap(new_buf_id, 'n', 'q', '', {
                 callback = function ()
                     kill_window(new_win_id, new_buf_id)
-                end
+                end,
             })
 
 
             vim.api.nvim_buf_set_keymap(new_buf_id, 'n', '<CR>', '', {
                 callback = function ()
-                    print("Spacebar was pressed")
                     local cursor_pos = vim.api.nvim_win_get_cursor(new_win_id)
                     local line_num = cursor_pos[1]
                     -- local char_index = cursor_pos[2]
@@ -83,6 +94,7 @@ return function ()
                     if buttons[line_num] ~= nil then
                         buttons[line_num].callback()
                     end
+                    kill_window(new_win_id, new_buf_id)
                 end
             })
 
