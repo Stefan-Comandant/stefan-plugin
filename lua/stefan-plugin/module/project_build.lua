@@ -12,7 +12,8 @@ return function ()
     local cur_buf_id = vim.api.nvim_get_current_buf()
     local new_buf_id = vim.api.nvim_create_buf(false, true)
 
-    vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Black", "Guys"})
+    -- vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Black", "Guys"})
+    vim.api.nvim_buf_set_lines(new_buf_id, 0, -1, false, {"Print", "Button 2"})
     vim.api.nvim_set_option_value("bufhidden", "delete", { buf = new_buf_id })
     vim.api.nvim_set_option_value("modifiable", false, { buf = new_buf_id });
 
@@ -51,6 +52,26 @@ return function ()
             vim.api.nvim_buf_set_keymap(new_buf_id, 'n', 'q', '', {
                 callback = function ()
                     kill_window(new_win_id, new_buf_id)
+                end
+            })
+
+            local buttons = {
+                { callback = function ()
+                    print("This is the first button")
+                end}
+            }
+
+            vim.api.nvim_buf_set_keymap(new_buf_id, 'n', ' ', '', {
+                callback = function ()
+                    print("Spacebar was pressed")
+                    local cursor_pos = vim.api.nvim_win_get_cursor(new_win_id)
+                    local line_num = cursor_pos[1]
+                    -- local char_index = cursor_pos[2]
+
+                    -- locate the button from the table using the cursor y position
+                    if buttons[line_num] ~= nil then
+                        buttons[line_num].callback()
+                    end
                 end
             })
 
