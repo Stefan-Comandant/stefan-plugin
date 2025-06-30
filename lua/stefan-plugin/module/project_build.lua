@@ -57,14 +57,28 @@ return function ()
             end
         },
         {
+            text = "Build and Run Project",
+            callback = function ()
+                local cwd = vim.fn.getcwd()
+
+                local opts = { detach = true, cwd = cwd }
+
+                vim.system({"kitty", "--hold", "sh", "-c", "make -s -C " .. cwd ..  " build run"}, opts, function (out)
+                    if out.code == 0 then
+                        print("Build and run was successfull!")
+                        return;
+                    end
+                    print("An error occured during the project build and run. Exit code: " .. out.code .. '\n')
+                    print(out.stderr)
+                end)
+            end,
+        },
+        {
             text = "Build Project",
             callback = function ()
                 local cwd = vim.fn.getcwd()
-                print(cwd)
 
                 vim.system({"make", "-C", cwd, "build"}, {}, function (out)
-                -- vim.system({"kitty"}, { detach = false }, function (out)
-                    -- print("Exit code: " .. out.code)
                     if out.code == 0 then
                         print("Build was completed successfully!")
                         return;
@@ -74,7 +88,26 @@ return function ()
                     print("An error occured during the project build. Code: " .. out.code .. '\n')
                     print(out.stderr)
                 end)
-            end
+            end,
+        },
+        {
+            text = "Run Project",
+            callback = function ()
+                local cwd = vim.fn.getcwd()
+
+                local opts = { detach = true, cwd = cwd }
+
+                vim.system({"kitty", "--hold", "sh", "-c", "make -s -C " .. cwd ..  " run"}, opts, function (out)
+                    if out.code == 0 then
+                        print("Project ran successfully!")
+                        return;
+                    end
+
+
+                    print("An error occured during the project run. Exist code: " .. out.code .. '\n')
+                    print(out.stderr)
+                end)
+            end,
         },
     }
 
@@ -120,9 +153,6 @@ return function ()
 
         end
     })
-
-    -- TODO: find out about highlights
-    -- TODO: find out about how to listen to char input without keymaps
 
     vim.api.nvim_create_autocmd({"BufLeave", "CursorMoved", "InsertEnter"}, {
         buffer = cur_buf_id,
