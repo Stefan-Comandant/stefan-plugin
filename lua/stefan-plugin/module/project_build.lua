@@ -40,12 +40,26 @@ local function create_win_and_buf(buttons)
     return new_win_id, new_buf_id
 end
 
+local function create_highlight(new_win_id, new_buf_id)
+    local ns_id = vim.api.nvim_create_namespace("float-button-hl-ns")
+
+    vim.api.nvim_set_hl(ns_id, "float-button-hl-gr", {
+        reverse = true,
+        bold = true,
+    })
+
+    vim.api.nvim_win_set_hl_ns(new_win_id, ns_id)
+
+    vim.api.nvim_buf_clear_highlight(new_buf_id, ns_id, 0, -1)
+    vim.api.nvim_buf_add_highlight(new_buf_id, ns_id, "float-button-hl-gr", vim.api.nvim_win_get_cursor(new_win_id)[1] - 1, 0, vim.api.nvim_win_get_width(new_win_id))
+end
+
 return function ()
     local cur_buf_id = vim.api.nvim_get_current_buf()
 
     local buttons = {
         {
-            text = "Build and Run Project",
+            text = "Build and run project",
             callback = function ()
                 local cwd = vim.fn.getcwd()
 
@@ -62,7 +76,7 @@ return function ()
             end,
         },
         {
-            text = "Build Project",
+            text = "Build project",
             callback = function ()
                 local cwd = vim.fn.getcwd()
 
@@ -79,7 +93,7 @@ return function ()
             end,
         },
         {
-            text = "Run Project",
+            text = "Run project",
             callback = function ()
                 local cwd = vim.fn.getcwd()
 
@@ -87,7 +101,7 @@ return function ()
 
                 vim.system({"kitty", "--hold", "sh", "-c", "make -s -C " .. cwd ..  " run"}, opts, function (out)
                     if out.code == 0 then
-                        print("Project ran successfully!")
+                        -- print("Project ran successfully!")
                         return;
                     end
 
@@ -100,6 +114,8 @@ return function ()
     }
 
     local new_win_id, new_buf_id = create_win_and_buf(buttons)
+
+    create_highlight(new_win_id, new_buf_id)
 
     vim.api.nvim_buf_set_keymap(cur_buf_id, 'n', 'Z', "", {
         callback = function ()
@@ -139,6 +155,13 @@ return function ()
                 end
             })
 
+        end
+    })
+
+    vim.api.nvim_create_autocmd({"CursorMoved"}, {
+        buffer = new_buf_id,
+        callback = function ()
+            create_highlight(new_win_id, new_buf_id)
         end
     })
 
