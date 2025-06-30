@@ -45,18 +45,6 @@ return function ()
 
     local buttons = {
         {
-            text = "Print message",
-            callback = function ()
-                print("This is the first button")
-            end
-        },
-        {
-            text = "Build stuff",
-            callback = function ()
-                print("building is in the process...")
-            end
-        },
-        {
             text = "Build and Run Project",
             callback = function ()
                 local cwd = vim.fn.getcwd()
