@@ -7,6 +7,45 @@ local function kill_window(win_id, buf_id)
     end
 end
 
+local function focus_float_window(cur_buf_id, new_buf_id, new_win_id, buttons)
+    -- clear the autocmds on the buffer so that it doesn't detect a buffer leave and close the window
+    vim.api.nvim_clear_autocmds({ buffer = cur_buf_id })
+
+    vim.api.nvim_set_current_win(new_win_id)
+    vim.api.nvim_win_set_cursor(new_win_id, { 1, 0 })
+
+    vim.api.nvim_create_autocmd({"BufLeave"}, {
+        buffer = new_buf_id,
+        once = true,
+        callback = function ()
+            vim.api.nvim_buf_del_keymap(cur_buf_id, 'n', 'Z')
+            kill_window(new_win_id, new_buf_id)
+        end,
+    })
+
+    vim.api.nvim_buf_set_keymap(new_buf_id, 'n', 'q', '', {
+        callback = function ()
+            kill_window(new_win_id, new_buf_id)
+        end,
+    })
+
+
+    vim.api.nvim_buf_set_keymap(new_buf_id, 'n', '<CR>', '', {
+        callback = function ()
+            local cursor_pos = vim.api.nvim_win_get_cursor(new_win_id)
+            local line_num = cursor_pos[1]
+            -- local char_index = cursor_pos[2]
+
+            -- locate the button from the table using the cursor y position
+            if buttons[line_num] ~= nil then
+                buttons[line_num].callback()
+            end
+            kill_window(new_win_id, new_buf_id)
+        end
+    })
+
+end
+
 -- @param `buttons` -
 -- @return - the IDs of the newly created window and buffer
 local function create_win_and_buf(buttons)
@@ -117,44 +156,11 @@ return function ()
 
     create_highlight(new_win_id, new_buf_id)
 
+    focus_float_window(cur_buf_id, new_buf_id, new_win_id, buttons)
+
     vim.api.nvim_buf_set_keymap(cur_buf_id, 'n', 'Z', "", {
         callback = function ()
-            -- clear the autocmds on the buffer so that it doesn't detect a buffer leave and close the window
-            vim.api.nvim_clear_autocmds({ buffer = cur_buf_id })
-
-            vim.api.nvim_set_current_win(new_win_id)
-            vim.api.nvim_win_set_cursor(new_win_id, { 1, 0 })
-
-            vim.api.nvim_create_autocmd({"BufLeave"}, {
-                buffer = new_buf_id,
-                once = true,
-                callback = function ()
-                    vim.api.nvim_buf_del_keymap(cur_buf_id, 'n', 'Z')
-                    kill_window(new_win_id, new_buf_id)
-                end,
-            })
-
-            vim.api.nvim_buf_set_keymap(new_buf_id, 'n', 'q', '', {
-                callback = function ()
-                    kill_window(new_win_id, new_buf_id)
-                end,
-            })
-
-
-            vim.api.nvim_buf_set_keymap(new_buf_id, 'n', '<CR>', '', {
-                callback = function ()
-                    local cursor_pos = vim.api.nvim_win_get_cursor(new_win_id)
-                    local line_num = cursor_pos[1]
-                    -- local char_index = cursor_pos[2]
-
-                    -- locate the button from the table using the cursor y position
-                    if buttons[line_num] ~= nil then
-                        buttons[line_num].callback()
-                    end
-                    kill_window(new_win_id, new_buf_id)
-                end
-            })
-
+            focus_float_window(cur_buf_id, new_buf_id, new_win_id, buttons)
         end
     })
 
