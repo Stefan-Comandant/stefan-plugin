@@ -7,6 +7,7 @@ local focus_float_window = require("stefan-plugin.module.float_win").focus_float
 return function ()
     local cur_buf_id = vim.api.nvim_get_current_buf()
 
+    --- @type button[]
     local buttons = {
         {
             text = "Build and run project",

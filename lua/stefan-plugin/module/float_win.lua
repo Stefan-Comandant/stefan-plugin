@@ -1,3 +1,5 @@
+--- @param win_id integer the id of the window to kill
+--- @param buf_id integer the id of the buffer inside the window which will be killed
 local function kill_window(win_id, buf_id)
     if vim.api.nvim_win_is_valid(win_id) then
         vim.api.nvim_win_close(win_id, true);
@@ -7,6 +9,15 @@ local function kill_window(win_id, buf_id)
     end
 end
 
+--- @class button
+--- @field text string
+--- @field callback function
+
+--- Make the floating window the current window 
+--- @param cur_buf_id integer
+--- @param new_buf_id integer
+--- @param new_win_id integer
+--- @param buttons button[] 
 local function focus_float_window(cur_buf_id, new_buf_id, new_win_id, buttons)
     -- clear the autocmds on the buffer so that it doesn't detect a buffer leave and close the window
     vim.api.nvim_clear_autocmds({ buffer = cur_buf_id })
@@ -46,8 +57,10 @@ local function focus_float_window(cur_buf_id, new_buf_id, new_win_id, buttons)
 
 end
 
--- @param `buttons` -
--- @return - the IDs of the newly created window and buffer
+--- Create the new floating window and its buffer 
+---@param buttons button[]
+---@return integer new_buf_id id of the newly created buffer
+---@return integer new_win_id id of the newly created window
 local function create_win_and_buf(buttons)
     local new_buf_id = vim.api.nvim_create_buf(false, true)
 

@@ -1,5 +1,7 @@
--- Creates a highlight at the position of the cursor in the buf tied to the `new_buf_id` ID
-return function (new_win_id, new_buf_id)
+--- Creates a highlight at the position of the cursor in the buf tied to the `new_buf_id` ID
+---@param new_win_id integer id of the window which will contain the highlighted text
+---@param new_buf_id integer id of the buffer tied to the specified window
+return function(new_win_id, new_buf_id)
     local ns_id = vim.api.nvim_create_namespace("float-button-hl-ns")
 
     vim.api.nvim_set_hl(ns_id, "float-button-hl-gr", {
