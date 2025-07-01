@@ -10,7 +10,8 @@ return function(new_win_id, new_buf_id)
     })
 
     vim.api.nvim_win_set_hl_ns(new_win_id, ns_id)
+    local line_num = vim.api.nvim_win_get_cursor(new_win_id)[1] - 1
 
-    vim.api.nvim_buf_clear_highlight(new_buf_id, ns_id, 0, -1)
-    vim.api.nvim_buf_add_highlight(new_buf_id, ns_id, "float-button-hl-gr", vim.api.nvim_win_get_cursor(new_win_id)[1] - 1, 0, vim.api.nvim_win_get_width(new_win_id))
+    vim.api.nvim_buf_clear_namespace(new_buf_id, ns_id, 0, -1)
+    vim.hl.range(new_buf_id, ns_id, "float-button-hl-gr", { line_num, 0}, { line_num, -1})
 end
