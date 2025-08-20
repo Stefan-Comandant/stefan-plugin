@@ -1,6 +1,17 @@
-local open_ter_win = "<cmd>10split | ter <CR><C-W>r"
+local better_term = nil
 
-vim.api.nvim_set_keymap("n", "<leader>ter", open_ter_win, { noremap = true, silent = true})
+vim.api.nvim_set_keymap("n", "<leader>ter", "", { noremap = true, silent = true, callback = function ()
+    if better_term == nil then
+        better_term = require("betterTerm")
+        better_term.setup {
+            startInserted = false,
+            position = "bot",
+            size = 10,
+        }
+    end
+
+    better_term.open()
+end})
 
 return {
     print_fname = require("stefan-plugin.module.print_file_name"),
